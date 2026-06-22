@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wallet · Iniciar Sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --c-bg:       #0d0f14;
+      --c-panel:    #13161f;
+      --c-border:   #1e2330;
+      --c-accent:   #6c63ff;
+      --c-accent2:  #a78bfa;
+      --c-text:     #e8eaf0;
+      --c-muted:    #7b82a0;
+      --c-success:  #34d399;
+      --c-error:    #f87171;
+      --radius:     14px;
+      --font-head:  'Space Grotesk', sans-serif;
+      --font-body:  'Inter', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--c-bg);
+      font-family: var(--font-body);
+      color: var(--c-text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Fondo animado */
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(108,99,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .bg-glow {
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(108,99,255,.18) 0%, transparent 70%);
+    }
+
+    /* Card */
+    .login-wrap {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 420px;
+      padding: 1rem;
+    }
+
+    .login-card {
+      background: var(--c-panel);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius);
+      padding: 2.5rem 2.25rem;
+      box-shadow: 0 32px 80px rgba(0,0,0,.55);
+    }
+
+    .brand {
+      display: flex; align-items: center; gap: .6rem;
+      margin-bottom: 2rem;
+    }
+    .brand-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--c-accent), var(--c-accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: #fff;
+    }
+    .brand-name {
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -.5px;
+      color: var(--c-text);
+    }
+    .brand-name span { color: var(--c-accent2); }
+
+    h1 {
+      font-family: var(--font-head);
+      font-size: 1.55rem;
+      font-weight: 700;
+      margin-bottom: .35rem;
+    }
+    .subtitle {
+      color: var(--c-muted);
+      font-size: .875rem;
+      margin-bottom: 2rem;
+    }
+
+    label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 500;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: var(--c-muted);
+      margin-bottom: .45rem;
+    }
+
+    .input-group-custom {
+      position: relative; margin-bottom: 1.25rem;
+    }
+    .input-group-custom .icon {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--c-muted); font-size: 1rem; pointer-events: none;
+    }
+    .input-group-custom input {
+      width: 100%;
+      background: var(--c-bg);
+      border: 1px solid var(--c-border);
+      border-radius: 9px;
+      color: var(--c-text);
+      font-family: var(--font-body);
+      font-size: .925rem;
+      padding: .75rem 1rem .75rem 2.75rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .input-group-custom input:focus {
+      border-color: var(--c-accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,.18);
+    }
+    .input-group-custom .toggle-pw {
+      position: absolute; right: 1rem; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--c-muted); cursor: pointer; font-size: 1rem;
+      transition: color .2s;
+    }
+    .input-group-custom .toggle-pw:hover { color: var(--c-text); }
+
+    .btn-login {
+      width: 100%;
+      background: linear-gradient(135deg, var(--c-accent), var(--c-accent2));
+      border: none; border-radius: 9px;
+      color: #fff; font-family: var(--font-body);
+      font-size: .95rem; font-weight: 600;
+      padding: .8rem 1rem;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      margin-top: .5rem;
+    }
+    .btn-login:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-login:active { transform: translateY(0); }
+
+    #error-msg {
+      display: none;
+      background: rgba(248,113,113,.1);
+      border: 1px solid rgba(248,113,113,.3);
+      color: var(--c-error);
+      border-radius: 9px;
+      font-size: .85rem;
+      padding: .65rem 1rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+    #error-msg.show { display: block; }
+
+    .hint {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--c-border);
+      font-size: .78rem;
+      color: var(--c-muted);
+      text-align: center;
+    }
+    .hint code {
+      background: var(--c-bg);
+      border: 1px solid var(--c-border);
+      border-radius: 5px;
+      padding: .1rem .4rem;
+      color: var(--c-accent2);
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<div class="login-wrap">
+  <div class="login-card">
+
+    <div class="brand">
+      <div class="brand-icon"><i class="bi bi-wallet2"></i></div>
+      <div class="brand-name">Wal<span>let</span></div>
+    </div>
+
+    <h1>Bienvenido</h1>
+    <p class="subtitle">Ingresa tus credenciales para continuar</p>
+
+    <div>
+      <label for="usuario">Usuario</label>
+      <div class="input-group-custom">
+        <i class="bi bi-person icon"></i>
+        <input type="text" id="usuario" placeholder="Ingresa tu usuario" autocomplete="username"/>
+      </div>
+
+      <label for="password">Contraseña</label>
+      <div class="input-group-custom">
+        <i class="bi bi-lock icon"></i>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+        <button class="toggle-pw" id="togglePw" type="button" tabindex="-1">
+          <i class="bi bi-eye" id="eyeIcon"></i>
+        </button>
+      </div>
+
+      <button class="btn-login" id="btnLogin">
+        <i class="bi bi-arrow-right-circle me-2"></i>Iniciar Sesión
+      </button>
+
+      <div id="error-msg">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        Usuario o contraseña incorrectos
+      </div>
+    </div>
+
+    <div class="hint">
+      Demo · usuario: <code>cliente</code> &nbsp;|&nbsp; contraseña: <code>123456</code>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+  // Si ya hay sesión activa, redirigir
+  if (verificarSesion()) window.location.href = 'index.html';
+
+  // Toggle contraseña
+  $('#togglePw').on('click', function () {
+    const input = $('#password');
+    const isPassword = input.attr('type') === 'password';
+    input.attr('type', isPassword ? 'text' : 'password');
+    $('#eyeIcon').toggleClass('bi-eye bi-eye-slash');
+  });
+
+  // Login
+  function doLogin() {
+    const usuario = $('#usuario').val().trim();
+    const password = $('#password').val();
+    if (iniciarSesion(usuario, password)) {
+      window.location.href = 'index.html';
+    } else {
+      $('#error-msg').addClass('show');
+      $('#password').val('');
+      $('#password').focus();
+    }
+  }
+
+  $('#btnLogin').on('click', doLogin);
+  $(document).on('keydown', function (e) {
+    if (e.key === 'Enter') doLogin();
+  });
+
+  // Ocultar error al escribir
+  $('#usuario, #password').on('input', function () {
+    $('#error-msg').removeClass('show');
+  });
+</script>
+</body>
+</html>

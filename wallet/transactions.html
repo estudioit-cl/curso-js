@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transacciones</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --c-bg:      #0d0f14;
+      --c-panel:   #13161f;
+      --c-border:  #1e2330;
+      --c-accent:  #6c63ff;
+      --c-accent2: #a78bfa;
+      --c-text:    #e8eaf0;
+      --c-muted:   #7b82a0;
+      --c-green:   #34d399;
+      --c-red:     #f87171;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      background: var(--c-bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--c-text);
+      padding: 1.75rem 2rem;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      margin-bottom: 1.5rem;
+    }
+    .page-header h2 {
+      font-size: 1.3rem; font-weight: 700;
+      margin-bottom: .2rem;
+    }
+    .page-header p {
+      font-size: .85rem; color: var(--c-muted);
+    }
+
+    /* Stats cards */
+    .stats-row {
+      display: flex; gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+    .stat-card {
+      flex: 1;
+      background: var(--c-panel);
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+    }
+    .stat-label {
+      font-size: .72rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+      color: var(--c-muted); margin-bottom: .3rem;
+    }
+    .stat-value {
+      font-size: 1.2rem; font-weight: 700;
+    }
+    .stat-value.green { color: var(--c-green); }
+    .stat-value.red   { color: var(--c-red); }
+    .stat-value.total { color: var(--c-accent2); }
+
+    /* Table */
+    .table-wrap {
+      background: var(--c-panel);
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .table-toolbar h3 {
+      font-size: .95rem; font-weight: 600;
+    }
+    .tx-count {
+      font-size: .78rem; color: var(--c-muted);
+      background: var(--c-bg);
+      border: 1px solid var(--c-border);
+      border-radius: 20px;
+      padding: .15rem .65rem;
+    }
+
+    table#tabla_maestra {
+      width: 100%; border-collapse: collapse;
+    }
+    table#tabla_maestra thead th {
+      background: rgba(108,99,255,.06);
+      padding: .7rem 1.25rem;
+      font-size: .72rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+      color: var(--c-muted);
+      border-bottom: 1px solid var(--c-border);
+      text-align: left;
+    }
+    table#tabla_maestra tbody tr {
+      border-bottom: 1px solid var(--c-border);
+      transition: background .12s;
+    }
+    table#tabla_maestra tbody tr:last-child { border-bottom: none; }
+    table#tabla_maestra tbody tr:hover { background: rgba(255,255,255,.02); }
+    table#tabla_maestra td {
+      padding: .85rem 1.25rem;
+      font-size: .875rem;
+      vertical-align: middle;
+    }
+
+    .badge-tipo {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .25rem .7rem;
+      border-radius: 20px;
+      font-size: .75rem; font-weight: 600;
+    }
+    .badge-deposito {
+      background: rgba(52,211,153,.1);
+      border: 1px solid rgba(52,211,153,.25);
+      color: var(--c-green);
+    }
+    .badge-transferencia {
+      background: rgba(167,139,250,.1);
+      border: 1px solid rgba(167,139,250,.25);
+      color: var(--c-accent2);
+    }
+
+    .monto-deposito    { color: var(--c-green); font-weight: 600; }
+    .monto-transferencia { color: var(--c-red); font-weight: 600; }
+
+    .fecha-cell { color: var(--c-muted); font-size: .82rem; }
+
+    .destinatario-cell { color: var(--c-text); }
+    .destinatario-empty { color: var(--c-border); font-size: .8rem; }
+
+    .empty-state {
+      text-align: center; padding: 3rem 1rem;
+      color: var(--c-muted);
+    }
+    .empty-state i { font-size: 2.5rem; margin-bottom: .75rem; display: block; color: var(--c-border); }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h2><i class="bi bi-clock-history me-2" style="color:var(--c-accent2)"></i>Movimientos</h2>
+  <p>Historial completo de tus transacciones</p>
+</div>
+
+<div class="stats-row" id="stats-row"></div>
+
+<div class="table-wrap">
+  <div class="table-toolbar">
+    <h3>Últimas transacciones</h3>
+    <span class="tx-count" id="tx-count">0 operaciones</span>
+  </div>
+  <table id="tabla_maestra">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Monto</th>
+        <th>Fecha</th>
+        <th>Destinatario</th>
+      </tr>
+    </thead>
+    <tbody id="tabla-body">
+      <tr><td colspan="4"><div class="empty-state"><i class="bi bi-inbox"></i>Sin movimientos</div></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+  function renderTabla() {
+    // Recargar desde localStorage
+    tabla_maestra = JSON.parse(localStorage.getItem('tabla_maestra')) || tabla_maestra;
+
+    const tbody = $('#tabla-body');
+    tbody.empty();
+
+    let totalDepositos = 0, totalTransferencias = 0;
+
+    if (tabla_maestra.length === 0) {
+      tbody.append('<tr><td colspan="4"><div class="empty-state"><i class="bi bi-inbox"></i>Sin movimientos</div></td></tr>');
+    } else {
+      tabla_maestra.forEach(function(tx) {
+        const esDeposito = tx.tipo === 'deposito';
+        if (esDeposito) totalDepositos += tx.monto;
+        else totalTransferencias += tx.monto;
+
+        const badge = esDeposito
+          ? `<span class="badge-tipo badge-deposito"><i class="bi bi-arrow-down-left"></i>Depósito</span>`
+          : `<span class="badge-tipo badge-transferencia"><i class="bi bi-arrow-up-right"></i>Transferencia</span>`;
+
+        const montoClass = esDeposito ? 'monto-deposito' : 'monto-transferencia';
+        const montoSign  = esDeposito ? '+' : '-';
+        const destinatario = tx.destinatario
+          ? `<span class="destinatario-cell"><i class="bi bi-person-fill me-1" style="color:var(--c-muted)"></i>${tx.destinatario}</span>`
+          : `<span class="destinatario-empty">—</span>`;
+
+        tbody.append(`
+          <tr>
+            <td>${badge}</td>
+            <td class="${montoClass}">${montoSign}${formatMonto(tx.monto)}</td>
+            <td class="fecha-cell"><i class="bi bi-calendar3 me-1"></i>${formatFecha(tx.fecha)}</td>
+            <td>${destinatario}</td>
+          </tr>
+        `);
+      });
+    }
+
+    // Stats
+    const saldo = totalDepositos - totalTransferencias;
+    $('#stats-row').html(`
+      <div class="stat-card">
+        <div class="stat-label"><i class="bi bi-arrow-down-left me-1"></i>Total Depósitos</div>
+        <div class="stat-value green">${formatMonto(totalDepositos)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="bi bi-arrow-up-right me-1"></i>Total Enviado</div>
+        <div class="stat-value red">${formatMonto(totalTransferencias)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="bi bi-wallet2 me-1"></i>Saldo Neto</div>
+        <div class="stat-value total">${formatMonto(saldo)}</div>
+      </div>
+    `);
+
+    $('#tx-count').text(tabla_maestra.length + ' operacion' + (tabla_maestra.length !== 1 ? 'es' : ''));
+  }
+
+  renderTabla();
+
+  // Refrescar si el padre nos lo pide
+  window.addEventListener('message', function(e) {
+    if (e.data === 'refresh-table') renderTabla();
+  });
+</script>
+</body>
+</html>

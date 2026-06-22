@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enviar Dinero</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --c-bg:      #0d0f14;
+      --c-panel:   #13161f;
+      --c-border:  #1e2330;
+      --c-accent:  #6c63ff;
+      --c-accent2: #a78bfa;
+      --c-text:    #e8eaf0;
+      --c-muted:   #7b82a0;
+      --c-green:   #34d399;
+      --c-red:     #f87171;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      background: var(--c-bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--c-text);
+      padding: 1.75rem 2rem;
+      min-height: 100vh;
+    }
+
+    .page-header { margin-bottom: 1.75rem; }
+    .page-header h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: .2rem; }
+    .page-header p  { font-size: .85rem; color: var(--c-muted); }
+
+    .form-card {
+      background: var(--c-panel);
+      border: 1px solid var(--c-border);
+      border-radius: 14px;
+      padding: 2rem;
+      max-width: 480px;
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: .75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+      color: var(--c-muted);
+      margin-bottom: .45rem;
+    }
+
+    .input-wrap {
+      position: relative; margin-bottom: 1.25rem;
+    }
+    .input-wrap .input-icon {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--c-muted); font-size: .95rem; pointer-events: none;
+    }
+    .input-wrap .prefix {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: .9rem; color: var(--c-muted); font-weight: 600; pointer-events: none;
+    }
+    .input-wrap input {
+      width: 100%;
+      background: var(--c-bg);
+      border: 1px solid var(--c-border);
+      border-radius: 9px;
+      color: var(--c-text);
+      font-family: 'Inter', sans-serif;
+      font-size: .95rem;
+      padding: .8rem 1rem .8rem 2.5rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .input-wrap input:focus {
+      border-color: var(--c-accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,.18);
+    }
+    .input-wrap input::placeholder { color: var(--c-border); }
+
+    /* Autocomplete dropdown */
+    .autocomplete-list {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
+      background: var(--c-panel);
+      border: 1px solid var(--c-border);
+      border-top: none;
+      border-radius: 0 0 9px 9px;
+      overflow: hidden;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+    .autocomplete-list.open { display: block; }
+    .autocomplete-item {
+      padding: .6rem 1rem;
+      cursor: pointer;
+      font-size: .875rem;
+      transition: background .12s;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .autocomplete-item:hover, .autocomplete-item.highlighted {
+      background: rgba(108,99,255,.12);
+      color: var(--c-accent2);
+    }
+    .autocomplete-item i { color: var(--c-muted); font-size: .85rem; }
+
+    .btn-action {
+      width: 100%;
+      background: linear-gradient(135deg, var(--c-accent), var(--c-accent2));
+      border: none; border-radius: 9px;
+      color: #fff; font-family: 'Inter', sans-serif;
+      font-size: .95rem; font-weight: 600;
+      padding: .82rem 1rem;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      margin-bottom: .25rem;
+    }
+    .btn-action:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-action:active { transform: translateY(0); }
+
+    .btn-secondary {
+      width: 100%;
+      background: var(--c-bg);
+      border: 1px solid var(--c-border);
+      border-radius: 9px;
+      color: var(--c-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: .875rem; font-weight: 500;
+      padding: .72rem 1rem;
+      cursor: pointer;
+      transition: all .15s;
+      margin-top: .5rem;
+    }
+    .btn-secondary:hover {
+      border-color: var(--c-accent);
+      color: var(--c-accent2);
+    }
+
+    #success-msg, #error-msg, #add-success-msg, #add-error-msg {
+      display: none;
+      border-radius: 9px;
+      font-size: .875rem; font-weight: 500;
+      padding: .7rem 1rem;
+      text-align: center;
+      margin-top: .75rem;
+    }
+    #success-msg.show, #add-success-msg.show { display: block; }
+    #error-msg.show, #add-error-msg.show { display: block; }
+
+    #success-msg, #add-success-msg {
+      background: rgba(52,211,153,.1);
+      border: 1px solid rgba(52,211,153,.3);
+      color: var(--c-green);
+    }
+    #error-msg, #add-error-msg {
+      background: rgba(248,113,113,.1);
+      border: 1px solid rgba(248,113,113,.3);
+      color: var(--c-red);
+    }
+
+    /* Add user panel */
+    .add-user-panel {
+      background: var(--c-panel);
+      border: 1px solid var(--c-border);
+      border-radius: 14px;
+      padding: 1.5rem 2rem;
+      max-width: 480px;
+      display: none;
+    }
+    .add-user-panel.open { display: block; }
+    .add-user-panel h4 {
+      font-size: .95rem; font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .divider {
+      border: none; border-top: 1px solid var(--c-border);
+      margin: 1.25rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <h2><i class="bi bi-send me-2" style="color:var(--c-accent2)"></i>Enviar Dinero</h2>
+  <p>Transfiere fondos a otra persona</p>
+</div>
+
+<!-- FORMULARIO PRINCIPAL -->
+<div class="form-card">
+
+  <label for="destinatario">Destinatario</label>
+  <div class="input-wrap" id="autocomplete-wrap">
+    <i class="bi bi-person input-icon"></i>
+    <input type="text" id="destinatario" name="destinatario"
+           placeholder="Buscar destinatario..." autocomplete="off"/>
+    <div class="autocomplete-list" id="autocomplete-list"></div>
+  </div>
+
+  <label for="monto_transferencia">Monto a enviar</label>
+  <div class="input-wrap">
+    <span class="prefix">$</span>
+    <input type="number" id="monto_transferencia" name="monto_transferencia"
+           placeholder="0" min="1"/>
+  </div>
+
+  <button class="btn-action" id="enviar_dinero">
+    <i class="bi bi-send me-2"></i>Enviar Dinero
+  </button>
+
+  <div id="success-msg">
+    <i class="bi bi-check-circle-fill me-2"></i>¡Dinero enviado!
+  </div>
+  <div id="error-msg">
+    <i class="bi bi-exclamation-circle me-1"></i><span id="error-text">Completa todos los campos</span>
+  </div>
+
+  <hr class="divider"/>
+
+  <button class="btn-secondary" id="btn-toggle-add-user">
+    <i class="bi bi-person-plus me-2"></i>Agregar nuevo destinatario
+  </button>
+</div>
+
+<!-- PANEL AGREGAR USUARIO -->
+<div class="add-user-panel" id="add-user-panel">
+  <h4><i class="bi bi-person-plus me-2" style="color:var(--c-accent2)"></i>Agregar destinatario</h4>
+
+  <label for="agregar_usuario">Nombre del nuevo destinatario</label>
+  <div class="input-wrap">
+    <i class="bi bi-person input-icon"></i>
+    <input type="text" id="agregar_usuario" name="agregar_usuario" placeholder="Ej: María López"/>
+  </div>
+
+  <button class="btn-action" id="btn-confirm-add" style="background:linear-gradient(135deg,#059669,#34d399)">
+    <i class="bi bi-check-circle me-2"></i>Confirmar
+  </button>
+
+  <div id="add-success-msg">
+    <i class="bi bi-check-circle-fill me-2"></i>Destinatario agregado al listado
+  </div>
+  <div id="add-error-msg">
+    <i class="bi bi-exclamation-circle me-1"></i><span id="add-error-text">Ingresa un nombre válido</span>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+  // ── AUTOCOMPLETE ──
+  function renderSuggestions(query) {
+    const list = $('#autocomplete-list');
+    list.empty();
+    const q = query.toLowerCase().trim();
+    const matches = destinatarios.filter(d => !q || d.toLowerCase().includes(q));
+    if (matches.length === 0) { list.removeClass('open'); return; }
+    matches.forEach(function(name) {
+      list.append(`<div class="autocomplete-item" data-name="${name}"><i class="bi bi-person-fill"></i>${name}</div>`);
+    });
+    list.addClass('open');
+  }
+
+  $('#destinatario').on('input', function() {
+    destinatarios = JSON.parse(localStorage.getItem('destinatarios')) || destinatarios;
+    renderSuggestions($(this).val());
+    clearMessages();
+  });
+
+  $('#destinatario').on('focus', function() {
+    destinatarios = JSON.parse(localStorage.getItem('destinatarios')) || destinatarios;
+    renderSuggestions($(this).val());
+  });
+
+  $(document).on('click', '.autocomplete-item', function() {
+    const name = $(this).data('name');
+    $('#destinatario').val(name);
+    $('#autocomplete-list').removeClass('open');
+    clearMessages();
+  });
+
+  $(document).on('click', function(e) {
+    if (!$(e.target).closest('#autocomplete-wrap').length) {
+      $('#autocomplete-list').removeClass('open');
+    }
+  });
+
+  // ── ENVIAR DINERO ──
+  function clearMessages() {
+    $('#success-msg, #error-msg').removeClass('show');
+  }
+
+  $('#enviar_dinero').on('click', function() {
+    clearMessages();
+    const destinatario = $('#destinatario').val().trim();
+    const monto = parseFloat($('#monto_transferencia').val());
+
+    if (!destinatario) {
+      $('#error-text').text('Selecciona o escribe un destinatario');
+      $('#error-msg').addClass('show'); return;
+    }
+    if (!monto || monto <= 0) {
+      $('#error-text').text('Ingresa un monto válido mayor a 0');
+      $('#error-msg').addClass('show'); return;
+    }
+
+    agregarTransaccion('transferencia', monto, destinatario);
+    $('#success-msg').addClass('show');
+    $('#destinatario').val('');
+    $('#monto_transferencia').val('');
+    $('#autocomplete-list').removeClass('open');
+
+    // Notificar al padre (saldo)
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage('refresh-balance', '*');
+    }
+  });
+
+  $('#monto_transferencia, #destinatario').on('input', clearMessages);
+
+  // ── TOGGLE ADD USER PANEL ──
+  $('#btn-toggle-add-user').on('click', function() {
+    $('#add-user-panel').toggleClass('open');
+    $('#add-success-msg, #add-error-msg').removeClass('show');
+    $('#agregar_usuario').val('');
+    if ($('#add-user-panel').hasClass('open')) {
+      setTimeout(() => $('#agregar_usuario').focus(), 50);
+    }
+  });
+
+  // ── CONFIRMAR AGREGAR USUARIO ──
+  $('#btn-confirm-add').on('click', function() {
+    $('#add-success-msg, #add-error-msg').removeClass('show');
+    const nombre = $('#agregar_usuario').val().trim();
+
+    if (!nombre) {
+      $('#add-error-text').text('Ingresa un nombre válido');
+      $('#add-error-msg').addClass('show'); return;
+    }
+    if (destinatarios.map(d => d.toLowerCase()).includes(nombre.toLowerCase())) {
+      $('#add-error-text').text('Este destinatario ya existe en el listado');
+      $('#add-error-msg').addClass('show'); return;
+    }
+
+    agregarDestinatario(nombre);
+    $('#add-success-msg').addClass('show');
+    $('#agregar_usuario').val('');
+  });
+
+  $('#agregar_usuario').on('input', function() {
+    $('#add-success-msg, #add-error-msg').removeClass('show');
+  });
+</script>
+</body>
+</html>

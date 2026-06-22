@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wallet · Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --c-bg:       #0d0f14;
+      --c-sidebar:  #0f111a;
+      --c-panel:    #13161f;
+      --c-border:   #1e2330;
+      --c-accent:   #6c63ff;
+      --c-accent2:  #a78bfa;
+      --c-text:     #e8eaf0;
+      --c-muted:    #7b82a0;
+      --c-hover:    #181c28;
+      --sidebar-w:  240px;
+      --font-head:  'Space Grotesk', sans-serif;
+      --font-body:  'Inter', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--c-bg);
+      font-family: var(--font-body);
+      color: var(--c-text);
+      overflow: hidden;
+    }
+
+    /* ── LAYOUT ── */
+    .app-shell {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--c-sidebar);
+      border-right: 1px solid var(--c-border);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      transition: width .25s;
+    }
+
+    .sidebar-logo {
+      display: flex; align-items: center; gap: .65rem;
+      padding: 1.5rem 1.25rem 1rem;
+      border-bottom: 1px solid var(--c-border);
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--c-accent), var(--c-accent2));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; color: #fff;
+    }
+    .logo-name {
+      font-family: var(--font-head);
+      font-size: 1.25rem; font-weight: 700;
+      color: var(--c-text); letter-spacing: -.4px;
+    }
+    .logo-name span { color: var(--c-accent2); }
+
+    /* Balance pill */
+    .balance-pill {
+      margin: 1rem .9rem .25rem;
+      background: linear-gradient(135deg, rgba(108,99,255,.15), rgba(167,139,250,.1));
+      border: 1px solid rgba(108,99,255,.25);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+    }
+    .balance-label {
+      font-size: .7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .6px; color: var(--c-muted); margin-bottom: .2rem;
+    }
+    .balance-amount {
+      font-family: var(--font-head);
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--c-text);
+    }
+    .balance-amount small { font-size: .75rem; color: var(--c-muted); font-weight: 400; }
+
+    /* Nav */
+    .nav-section {
+      padding: 1.1rem .9rem .4rem;
+      font-size: .7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .6px; color: var(--c-muted);
+    }
+
+    .nav-link-item {
+      display: flex; align-items: center; gap: .7rem;
+      padding: .65rem 1rem;
+      margin: .1rem .5rem;
+      border-radius: 9px;
+      color: var(--c-muted);
+      text-decoration: none;
+      font-size: .9rem; font-weight: 500;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      border: 1px solid transparent;
+    }
+    .nav-link-item .nav-icon {
+      width: 30px; height: 30px; flex-shrink: 0;
+      background: var(--c-border);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem;
+      transition: background .15s;
+    }
+    .nav-link-item:hover {
+      background: var(--c-hover);
+      color: var(--c-text);
+    }
+    .nav-link-item.active {
+      background: rgba(108,99,255,.12);
+      color: var(--c-accent2);
+      border-color: rgba(108,99,255,.2);
+    }
+    .nav-link-item.active .nav-icon {
+      background: linear-gradient(135deg, var(--c-accent), var(--c-accent2));
+      color: #fff;
+    }
+
+    /* Logout */
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 1rem .9rem;
+      border-top: 1px solid var(--c-border);
+    }
+    .btn-logout {
+      display: flex; align-items: center; gap: .65rem;
+      padding: .6rem 1rem;
+      border-radius: 9px;
+      background: none;
+      border: 1px solid var(--c-border);
+      color: var(--c-muted);
+      font-size: .875rem; font-weight: 500;
+      cursor: pointer; width: 100%;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .btn-logout:hover {
+      background: rgba(248,113,113,.08);
+      border-color: rgba(248,113,113,.3);
+      color: #f87171;
+    }
+
+    /* ── CANVAS ── */
+    .canvas {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      height: 56px; flex-shrink: 0;
+      background: var(--c-panel);
+      border-bottom: 1px solid var(--c-border);
+      display: flex; align-items: center;
+      padding: 0 1.5rem;
+      gap: .75rem;
+    }
+    .topbar-title {
+      font-family: var(--font-head);
+      font-size: 1rem; font-weight: 600;
+      color: var(--c-text);
+    }
+    .topbar-breadcrumb {
+      font-size: .8rem; color: var(--c-muted);
+    }
+    .topbar-sep { color: var(--c-border); margin: 0 .2rem; }
+
+    #main-iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      background: var(--c-bg);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+
+    <a class="sidebar-logo">
+      <div class="logo-icon"><i class="bi bi-wallet2"></i></div>
+      <div class="logo-name">Wal<span>let</span></div>
+    </a>
+
+    <div class="balance-pill">
+      <div class="balance-label">Saldo disponible</div>
+      <div class="balance-amount" id="sidebar-balance">$0 <small>CLP</small></div>
+    </div>
+
+    <div class="nav-section">Menú</div>
+
+    <nav>
+      <a class="nav-link-item active" id="nav-inicio" onclick="loadPage('transactions.html', 'Inicio', this)">
+        <span class="nav-icon"><i class="bi bi-house"></i></span>
+        Inicio
+      </a>
+      <a class="nav-link-item" id="nav-deposit" onclick="loadPage('deposit.html', 'Realizar Depósito', this)">
+        <span class="nav-icon"><i class="bi bi-plus-circle"></i></span>
+        Realizar Depósito
+      </a>
+      <a class="nav-link-item" id="nav-send" onclick="loadPage('sendmoney.html', 'Enviar Dinero', this)">
+        <span class="nav-icon"><i class="bi bi-send"></i></span>
+        Enviar Dinero
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="cerrarSesion()">
+        <i class="bi bi-box-arrow-left"></i>
+        Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── CANVAS ── -->
+  <main class="canvas">
+    <div class="topbar">
+      <span class="topbar-breadcrumb">Wallet</span>
+      <span class="topbar-sep">/</span>
+      <span class="topbar-title" id="topbar-title">Inicio</span>
+    </div>
+    <iframe id="main-iframe" src="transactions.html" title="Contenido principal"></iframe>
+  </main>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="script.js"></script>
+<script>
+  // Guard de sesión
+  if (!verificarSesion()) window.location.href = 'login.html';
+
+  // Calcular saldo desde tabla_maestra
+  function calcularSaldo() {
+    return tabla_maestra.reduce((acc, tx) => {
+      return tx.tipo === 'deposito' ? acc + tx.monto : acc - tx.monto;
+    }, 0);
+  }
+
+  function actualizarSaldo() {
+    const saldo = calcularSaldo();
+    $('#sidebar-balance').html(formatMonto(saldo) + ' <small>CLP</small>');
+  }
+
+  actualizarSaldo();
+
+  // Escuchar mensajes del iframe para refrescar saldo
+  window.addEventListener('message', function(e) {
+    if (e.data === 'refresh-balance') {
+      // Recargar datos desde localStorage
+      tabla_maestra = JSON.parse(localStorage.getItem('tabla_maestra')) || tabla_maestra;
+      actualizarSaldo();
+    }
+  });
+
+  function loadPage(src, title, el) {
+    $('#main-iframe').attr('src', src);
+    $('#topbar-title').text(title);
+    $('.nav-link-item').removeClass('active');
+    $(el).addClass('active');
+  }
+</script>
+</body>
+</html>
